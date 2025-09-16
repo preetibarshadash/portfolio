@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../App.css";
+import typingSound from "../assets/typing.mp3";
 
 export default function Main() {
   const [displayText, setDisplayText] = useState("");
@@ -24,12 +25,14 @@ export default function Main() {
       }
 
       if (!audioRef.current) {
-        const audio = new Audio("/typing.mp3");
+        const audio = new Audio(typingSound); 
         audio.volume = 0.2;
         audio.loop = true;
-        await audio.load();
         audioRef.current = audio;
       }
+
+      // Play audio immediately on first user gesture
+      audioRef.current.play().catch(console.error);
 
       hasInteracted.current = true;
       setShouldStartTyping(true);
@@ -47,12 +50,14 @@ export default function Main() {
     let hideTimeout;
 
     if (!isTyping) {
+      // show scroll hint 3s after typing finishes
       showTimeout = setTimeout(() => {
         setShowScrollHint(true);
+        // hide after 3s
         hideTimeout = setTimeout(() => {
           setShowScrollHint(false);
         }, 3000);
-      }, 1000);
+      }, 3000);
     }
 
     return () => {
@@ -153,7 +158,6 @@ export default function Main() {
                   )}
                 </div>
               ))}
-
               {!isTyping && (
                 <div
                   className={`scroll-hint ${showScrollHint ? "show" : "hide"}`}
